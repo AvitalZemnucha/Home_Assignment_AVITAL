@@ -1,15 +1,24 @@
 API_BASE_URL = "http://127.0.0.1:8000"
-API_LOGIN_URL = "http://127.0.0.1:8000/login"
 
-####USER####
-API_PRODUCT_URL = "http://127.0.0.1:8000/product/"
-API_ALL_PRODUCTS = "http://127.0.0.1:8000/products"
-API_CART_URL = "http://127.0.0.1:8000/cart"
-API_CHECKOUT_URL = "http://127.0.0.1:8000/checkout"
-API_ORDERS_URL = "http://127.0.0.1:8000/orders"
+########User##############
+API_LOGIN_URL = f"{API_BASE_URL}/login"
+API_PRODUCT_URL = f"{API_BASE_URL}/product"
+API_ALL_PRODUCTS = f"{API_BASE_URL}/products"
+API_CART_URL = f"{API_BASE_URL}/cart"
+API_CHECKOUT_URL = f"{API_BASE_URL}/checkout"
+API_ORDERS_URL = f"{API_BASE_URL}/orders"
 
-####ADMIN######
-API_PANEL_ADMIN = "http://127.0.0.1:8000/panel"
-API_ORDERS_ADMIN = "http://127.0.0.1:8000/panel/orders"
-API_ORDERS_STATUS_ADMIN = "http://127.0.0.1:8000/panel/orders/status/"
-API_UPDATE_STATUS_ADMIN = "http://127.0.0.1:8000/panel/orders/update-status"
+########ADMIN############
+API_PANEL_ADMIN = f"{API_BASE_URL}/panel"
+API_ORDERS_ADMIN = f"{API_BASE_URL}/panel/orders"
+API_ORDERS_STATUS_ADMIN = f"{API_BASE_URL}/panel/orders/status"
+API_UPDATE_STATUS_ADMIN = f"{API_BASE_URL}/panel/orders/update-status"
+
+
+#####Credit Card######
+card_payload = {
+    "name": "John Doe",
+    "credit_card_number": "5875616386943986",
+    "expiry_date": "08/29",
+    "cvv": "714"
+}

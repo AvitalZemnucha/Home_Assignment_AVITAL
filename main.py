@@ -1,10 +1,10 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from contextlib import asynccontextmanager
 import random
 from typing import Optional, List, Dict
-
+from fastapi.responses import HTMLResponse
 from bson import ObjectId
-from fastapi import FastAPI, HTTPException, Header, Depends
+from fastapi import FastAPI, HTTPException, Header, Depends, Query
 from pycparser.ply.yacc import Production
 from pydantic import BaseModel
 import base64
@@ -77,17 +77,61 @@ VALID_ORDER_STATUSES: Dict[str, str] = {
     "Delivered": None  # No further transitions allowed
 }
 
+######### Credit Card #########
+class CreditCard(BaseModel):
+    name: str
+    credit_card_number: str
+    expiry_date: str
+    cvv: str
 
+def generate_credit_card_number():
+    first_digit = str(random.randint(4, 5))
+    remaining_digits = ''.join([str(random.randint(0, 9)) for _ in range(15)])
+    return first_digit + remaining_digits
+
+def generate_expiry_date():
+    today = datetime.now()
+    # Randomly decide if the card will be expired or valid
+    if random.choice([True, False]):
+        # Generate expired date
+        past_date = today - timedelta(days=random.randint(1, 365 * 5))  # Subtract random days
+        return past_date.strftime('%m/%y')
+    else:
+        # Generate valid expiry date
+        future_date = today + timedelta(days=random.randint(365, 5 * 365))  # Add random days
+        return future_date.strftime('%m/%y')
+
+def generate_cvv():
+    return f"{random.randint(100, 999)}"
+
+def create_generated_card(name: str) -> CreditCard:
+    return CreditCard(
+        name=name,
+        credit_card_number=generate_credit_card_number(),
+        expiry_date=generate_expiry_date(),
+        cvv=generate_cvv()
+    )
+
+@app.get("/credit_card")
+async def get_card(name: str = Query(..., description="Name of the card holder")):
+    card = create_generated_card(name)
+    return card
 def get_current_timestamp():
     return datetime.now()
 
-
 ##### Order Placement Flow #####
-@app.get("/")
-def home():
-    return {"message": "Welcome to Order Management System (OMS), please login."}
+@app.get("/home")
+async def home():
+    # Return login HTML page, from /static/index.html
+    with open("static/index.html", "r") as f:
+        return HTMLResponse(content=f.read())
 
 
+@app.get("/login_page", response_class=HTMLResponse)
+async def login_page():
+    #  Return login HTML page, from /static/login_page.html:
+    with open("static/login_page.html", "r") as f:
+        return HTMLResponse(content=f.read())
 @app.post("/login")
 async def login(credentials: LoginRequest):
     # Fetch the user from MongoDB by email
@@ -256,11 +300,19 @@ async def clear_cart(token: str = Depends(get_token_from_header)):
 
 
 @app.post("/checkout")
-async def checkout(token: str = Depends(get_token_from_header)):
-    # Validate the token
+async def checkout(credit_card: CreditCard, token: str = Depends(get_token_from_header)):
+     # Validate the token
     is_valid, user = validate_token(token)
     if not is_valid:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+    # Validate card expiry date
+    current_date = datetime.now()
+    expiry_date = datetime.strptime(credit_card.expiry_date, "%m/%y")
+    if expiry_date < current_date:
+        return {
+            f"Email sent to {user['email']}": f"Dear {user['full_name']}, your card has expired. Please use a valid card."
+        }
 
     # Get user's cart
     user_data = get_user_by_email(user["email"])

@@ -2501,6 +2501,39 @@
 					]
 				},
 				{
+					"name": "Misc",
+					"item": [
+						{
+							"name": "Get Credit Card - John Doe",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/credit_card?name=John Doe",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"credit_card"
+									],
+									"query": [
+										{
+											"key": "name",
+											"value": "John Doe"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "Greetings",
 					"request": {
 						"method": "GET",
