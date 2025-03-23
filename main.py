@@ -120,18 +120,11 @@ def get_current_timestamp():
     return datetime.now()
 
 ##### Order Placement Flow #####
-@app.get("/home")
+@app.get("/")
 async def home():
-    # Return login HTML page, from /static/index.html
-    with open("static/index.html", "r") as f:
-        return HTMLResponse(content=f.read())
+    return "Greetings! You are on Order Management System"
 
 
-@app.get("/login_page", response_class=HTMLResponse)
-async def login_page():
-    #  Return login HTML page, from /static/login_page.html:
-    with open("static/login_page.html", "r") as f:
-        return HTMLResponse(content=f.read())
 @app.post("/login")
 async def login(credentials: LoginRequest):
     # Fetch the user from MongoDB by email
