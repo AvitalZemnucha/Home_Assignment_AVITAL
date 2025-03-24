@@ -1,3 +1,5 @@
+import base64
+
 import pytest
 import requests
 from database.order_queries import get_order_by_id
@@ -7,6 +9,7 @@ from tests_api.helpers.validation_helpers import get_admin_auth_headers, validat
     decode_user_token
 from utils.constants import API_CART_URL, API_CHECKOUT_URL, API_ORDERS_ADMIN, API_ORDERS_STATUS_ADMIN, API_LOGIN_URL, \
     API_UPDATE_STATUS_ADMIN
+from database.user_queries import users_data
 
 
 def test_full_admin_operation(get_admin_token, get_user_token):
@@ -20,9 +23,14 @@ def test_full_admin_operation(get_admin_token, get_user_token):
     order_in_db = get_order_by_id(order_id)
     assert order_in_db["status"].lower() == "pending", f"Order is not pending, got {order_in_db['status']}"
    #Admin Login
+    # payload = {
+    #     "email": "alice.johnson@example.com",
+    #     "password": "Admin1"
+    # }
+    admin_user =users_data[2]
     payload = {
-        "email": "alice.johnson@example.com",
-        "password": "Admin1"
+        "email": admin_user["email"],
+        "password":  base64.b64decode(admin_user["password"]).decode()
     }
     response_login = requests.post(API_LOGIN_URL, json=payload)
     assert response_login.status_code == 200, f"Expected 200, got {response_login.status_code}"
